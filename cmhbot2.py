@@ -5,7 +5,7 @@ import json
 
 
 def extract_article(t):
-    """find the url for articles in a single tweet"""
+    """find the url for articles in a single tweet. extract the link from various types of tweets"""
     try:
         expanded = t.get('entities', {}).get('urls', {})[0].get('expanded_url', {})
         return expanded
@@ -35,6 +35,8 @@ with open('twitter_bot_credentials.json') as f:
     creds = json.loads(f.read())
 
 def handler(event, context):
+ """main function that pulls down tweets from the users primary timeline,
+ extracts links, and tweets them to another twitter account"""
     twitter = Twython(creds['APP_KEY'], creds['APP_SECRET'],
                   creds['OAUTH_TOKEN'], creds['OAUTH_TOKEN_SECRET'])
     tweets = twitter.get_home_timeline(count = 2000, tweet_mode = 'extended')
@@ -45,7 +47,7 @@ def handler(event, context):
         if article:
             url.append(article)
 
-
+# if the extracted link is another tweet, try finding an article in that tweet
     for u in url:
         if "https://twitter.com/" in u:
             try:
